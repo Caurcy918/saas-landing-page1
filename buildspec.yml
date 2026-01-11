@@ -1,20 +1,23 @@
 version: 0.2
 
-phases:
-  install:
-    runtime-versions:
-      nodejs: 18
-    commands:
-      - echo Installing dependencies...
-      - npm ci --legacy-peer-deps
+env:
+  variables:
+    AWS_REGION: us-east-1
+    ECR_REPO: react-app-ci-cd-amzn
 
+phases:
+  pre_build:
+    commands:
+      - ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+      - ECR_URI="${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_URI
+      - IMAGE_TAG=${CODEBUILD_RESOLVED_SOURCE_VERSION}
   build:
     commands:
-      - echo Building the React app...
-      - npm run build
-
-artifacts:
-  files:
-    - '**/*'
-  base-directory: dist
-  discard-paths: no
+      - docker build -t ${ECR_REPO}:${IMAGE_TAG} .
+      - docker tag ${ECR_REPO}:${IMAGE_TAG} ${ECR_URI}/${ECR_REPO}:${IMAGE_TAG}
+      - docker tag ${ECR_REPO}:${IMAGE_TAG} ${ECR_URI}/${ECR_REPO}:latest
+  post_build:
+    commands:
+      - docker push ${ECR_URI}/${ECR_REPO}:${IMAGE_TAG}
+      - docker push ${ECR_URI}/${ECR_REPO}:latest
