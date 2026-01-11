@@ -19,7 +19,7 @@
     "react-scroll": "^1.9.0",
     "minimist": "0.0.8",
     "react-slidedown": "^2.4.7"
-  },git
+  },
   "devDependencies": {
     "@eslint/js": "^9.9.0",
     "@types/react": "^18.3.3",
