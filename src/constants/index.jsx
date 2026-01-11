@@ -113,7 +113,7 @@ export const features = [
     {
       id: "0",
       title: "Core",
-      priceMonthly: 10,
+      priceMonthly: 45,
       priceYearly: 12,
       caption: "Best for solo creators",
       features: [
